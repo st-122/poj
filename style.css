@@ -1,0 +1,26 @@
+html,
+body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.image-container {
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+}
+
+.image {
+    align-items: center;
+    width: clamp(300px, 600px, 900px);
+}
+
+.text-container {
+    position: absolute;
+    background: rgba(117, 190, 111, 0.7);
+    padding: 10px;
+    border: 1px solid #000;
+}
