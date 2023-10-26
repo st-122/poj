@@ -5,8 +5,8 @@ let offsetY = 0;
 let isDragging = false;
 
 mainBox.addEventListener('click', (e) => {
-    
-    if ((e.target === mainBox)&& !isDragging) {
+
+    if ((e.target === mainBox) && !isDragging) {
         createTextWithButton(e.clientX, e.clientY);
     }
 });
@@ -45,7 +45,7 @@ function createTextWithButton(x, y) {
         });
 
         message.addEventListener('mousedown', (e) => {
-            
+
             if (!isDragging && !selectedTextBlock) {
                 isDragging = true;
                 message.style.zIndex = 1;
@@ -57,36 +57,38 @@ function createTextWithButton(x, y) {
         });
 
         document.addEventListener('mousemove', (e) => {
-            
+
             if (isDragging && selectedTextBlock === message) {
-                
+
                 const parentRect = mainBox.getBoundingClientRect();
                 const newX = e.clientX - parentRect.left - offsetX;
                 const newY = e.clientY - parentRect.top - offsetY;
                 //right side
-                if(e.clientX + message.clientWidth-1 >= mainBoxRect.width + parentRect.left){
+                if (e.clientX + message.clientWidth - 1 >= mainBoxRect.width + parentRect.left) {
                     console.log('border')
                     message.style.flexDirection = 'row-reverse';
-                }else{
+                } else {
                     message.style.flexDirection = 'row';
                 }
                 //check border
-                if(e.clientX + message.clientWidth-1-20 >= mainBoxRect.width + parentRect.left){
-                    selectedTextBlock.style.left = (mainBoxRect.width - message.clientWidth-1) + 'px';
-                }else if(e.clientX <= parentRect.left ){
+                if (e.clientX + message.clientWidth - 1 - 20 >= mainBoxRect.width + parentRect.left) {
+                    selectedTextBlock.style.left = (mainBoxRect.width - message.clientWidth - 1) + 'px';
+                } else if (e.clientX - message.clientWidth - 1+20 <= parentRect.left) {
                     selectedTextBlock.style.left = 1 + 'px';
-                }else{
+                } else {
                     selectedTextBlock.style.left = newX + 'px';
                 }
-                console.log(e.clientY)
-                console.log(mainBoxRect.height + parentRect.top)
+                
+                console.log('hdsfkhf//////')
+                console.log(message.getBoundingClientRect().left)
+                console.log(parentRect.left)
 
 
-                if(e.clientY - message.clientHeight-1 <= parentRect.top){
+                if (e.clientY - message.clientHeight - 1 <= parentRect.top) {
                     selectedTextBlock.style.top = 1 + 'px';
-                }else if(e.clientY+3 >= parentRect.bottom){
-                    selectedTextBlock.style.top = (mainBoxRect.height - message.clientHeight)-1 + 'px';
-                }else{
+                } else if (e.clientY + 3 >= parentRect.bottom) {
+                    selectedTextBlock.style.top = (mainBoxRect.height - message.clientHeight) - 1 + 'px';
+                } else {
                     selectedTextBlock.style.top = newY + 'px';
                 }
 
@@ -96,7 +98,7 @@ function createTextWithButton(x, y) {
 
 
         message.addEventListener('mouseup', (e) => {
-            
+
             // Завершення перетягування
             if (selectedTextBlock === message) {
                 isDragging = false;
@@ -121,48 +123,42 @@ function createTextWithButton(x, y) {
             document.documentElement.style.overflow = 'hidden';
         });
 
-        message.addEventListener('touchmove', (e) => {
-            // Перетягування блоку на сенсорних пристроях
+        document.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            message.style.touchAction='none';
             if (isDragging && selectedTextBlock === message) {
-                const touch = e.touches[0];
-                if (touch) {
-                    const parentRect = mainBox.getBoundingClientRect();
-                    const newX = touch.clientX - parentRect.left - offsetX;
-                    const newY = touch.clientY - parentRect.top - offsetY;
 
-                    if(touch.clientX + message.clientWidth-1 >= mainBoxRect.width + parentRect.left){
-                        console.log('border')
-                        message.style.flexDirection = 'row-reverse';
-                    }else{
-                        message.style.flexDirection = 'row';
-                    }
-
-                    if(touch.clientX + message.clientWidth-1-20 >= mainBoxRect.width + parentRect.left){
-                        selectedTextBlock.style.left = (mainBoxRect.width - message.clientWidth-1) + 'px';
-                    }else if(touch.clientX <= parentRect.left ){
-                        selectedTextBlock.style.left = 1 + 'px';
-                    }else{
-                        selectedTextBlock.style.left = newX + 'px';
-                    }
-                    console.log(touch.clientY)
-                    console.log(mainBoxRect.height + parentRect.top)
-    
-    
-                    if(touch.clientY - message.clientHeight-1 <= parentRect.top){
-                        selectedTextBlock.style.top = 1 + 'px';
-                    }else if(touch.clientY+3 >= parentRect.bottom){
-                        selectedTextBlock.style.top = (mainBoxRect.height - message.clientHeight)-1 + 'px';
-                    }else{
-                        selectedTextBlock.style.top = newY + 'px';
-                    }
-    
+                const parentRect = mainBox.getBoundingClientRect();
+                const newX = e.touches[0].clientX - parentRect.left - offsetX;
+                const newY = e.touches[0].clientY - parentRect.top - offsetY;
+                //right side
+                if (e.touches[0].clientX + message.clientWidth - 1 >= mainBoxRect.width + parentRect.left) {
+                    console.log('border')
+                    message.style.flexDirection = 'row-reverse';
+                } else {
+                    message.style.flexDirection = 'row';
+                }
+                //check border
+                if (e.touches[0].clientX + message.clientWidth - 1 - 20 >= mainBoxRect.width + parentRect.left) {
+                    selectedTextBlock.style.left = (mainBoxRect.width - message.clientWidth - 1) + 'px';
+                } else if (e.touches[0].clientX - message.clientWidth - 1+20 <= parentRect.left) {
+                    selectedTextBlock.style.left = 1 + 'px';
+                } else {
                     selectedTextBlock.style.left = newX + 'px';
+                }
+                if (e.touches[0].clientY - message.clientHeight - 1 <= parentRect.top) {
+                    selectedTextBlock.style.top = 1 + 'px';
+                } else if (e.touches[0].clientY + 3 >= parentRect.bottom) {
+                    selectedTextBlock.style.top = (mainBoxRect.height - message.clientHeight) - 1 + 'px';
+                } else {
                     selectedTextBlock.style.top = newY + 'px';
                 }
-                e.preventDefault();
+                
+                
+                
             }
         });
-
+        
 
         message.addEventListener('touchend', () => {
             // Завершення перетягування на сенсорних пристроях
