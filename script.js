@@ -1,35 +1,28 @@
-const mainBox = document.getElementsByClassName('main-box')[0];
+const mainBox = document.querySelector('.main-box');
 let selectedTextBlock = null;
-let offsetX = 0;
-let offsetY = 0;
 let isDragging = false;
+const dragData = {
+    offsetX: 0,
+    offsetY: 0,
+};
 
 mainBox.addEventListener('click', (e) => {
-
-    if ((e.target === mainBox) && !isDragging) {
+    if (e.target === mainBox && !isDragging) {
         createTextWithButton(e.clientX, e.clientY);
     }
 });
 
 function createTextWithButton(x, y) {
-    if ((document.querySelectorAll('.text-container')).length < 5) {
+    const textContainers = document.querySelectorAll('.text-container');
+    if (textContainers.length < 5) {
         const message = document.createElement('div');
         message.className = 'text-container';
-
         const mainBoxRect = mainBox.getBoundingClientRect();
         const mainBoxLeft = mainBoxRect.left;
         const mainBoxTop = mainBoxRect.top;
 
-        if (x + 70 > mainBoxRect.width + mainBoxLeft) {
-            message.style.left = (mainBoxRect.width - 70) + 'px';
-        } else {
-            message.style.left = x - mainBoxLeft + 'px';
-        }
-        if (y + 20 > mainBoxRect.height + mainBoxTop) {
-            message.style.top = (mainBoxRect.height - 20) + 'px';
-        } else {
-            message.style.top = y - mainBoxTop + 'px';
-        }
+        message.style.left = Math.min(x - mainBoxLeft, mainBoxRect.width - 70) + 'px';
+        message.style.top = Math.min(y - mainBoxTop, mainBoxRect.height - 20) + 'px';
 
         message.textContent = 'message';
         message.style.userSelect = 'none';
@@ -38,138 +31,91 @@ function createTextWithButton(x, y) {
         closeButton.textContent = 'X';
         message.appendChild(closeButton);
         mainBox.appendChild(message);
-        console.log(message.width);
 
         closeButton.addEventListener('click', () => {
             message.remove();
         });
 
         message.addEventListener('mousedown', (e) => {
-
             if (!isDragging && !selectedTextBlock) {
-                isDragging = true;
-                message.style.zIndex = 1;
-                selectedTextBlock = message;
-                message.style.cursor = 'grab';
-                offsetX = e.clientX - message.getBoundingClientRect().left;
-                offsetY = e.clientY - message.getBoundingClientRect().top;
+                startDragging(message, e);
             }
         });
 
         document.addEventListener('mousemove', (e) => {
-
             if (isDragging && selectedTextBlock === message) {
-
-                const parentRect = mainBox.getBoundingClientRect();
-                const newX = e.clientX - parentRect.left - offsetX;
-                const newY = e.clientY - parentRect.top - offsetY;
-                //right side
-                if (e.clientX + message.clientWidth - 1 >= mainBoxRect.width + parentRect.left) {
-                    console.log('border')
-                    message.style.flexDirection = 'row-reverse';
-                } else {
-                    message.style.flexDirection = 'row';
-                }
-                //check border
-                if (e.clientX + message.clientWidth - 1 - 20 >= mainBoxRect.width + parentRect.left) {
-                    selectedTextBlock.style.left = (mainBoxRect.width - message.clientWidth - 1) + 'px';
-                } else if (e.clientX - message.clientWidth - 1+20 <= parentRect.left) {
-                    selectedTextBlock.style.left = 1 + 'px';
-                } else {
-                    selectedTextBlock.style.left = newX + 'px';
-                }
-                
-                console.log('hdsfkhf//////')
-                console.log(message.getBoundingClientRect().left)
-                console.log(parentRect.left)
-
-
-                if (e.clientY - message.clientHeight - 1 <= parentRect.top) {
-                    selectedTextBlock.style.top = 1 + 'px';
-                } else if (e.clientY + 3 >= parentRect.bottom) {
-                    selectedTextBlock.style.top = (mainBoxRect.height - message.clientHeight) - 1 + 'px';
-                } else {
-                    selectedTextBlock.style.top = newY + 'px';
-                }
-
-
+                moveDraggedElement(message, e);
             }
         });
 
-
-        message.addEventListener('mouseup', (e) => {
-
-            // Завершення перетягування
-            if (selectedTextBlock === message) {
-                isDragging = false;
-                message.style.zIndex = 0;
-                message.style.cursor = 'grab';
-                selectedTextBlock = null;
-            }
+        message.addEventListener('mouseup', () => {
+            endDragging(message);
         });
-
-
 
         message.addEventListener('touchstart', (e) => {
-            // Початок перетягування на сенсорних пристроях
-            isDragging = true;
-            selectedTextBlock = message;
-            const touch = e.touches[0];
-            offsetX = touch.clientX - message.getBoundingClientRect().left;
-            offsetY = touch.clientY - message.getBoundingClientRect().top;
-
-            // Вимкнення прокручування сторінки
-            document.body.style.overflow = 'hidden';
-            document.documentElement.style.overflow = 'hidden';
+            startDragging(message, e.touches[0]);
+            disableScroll();
         });
 
         document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            message.style.touchAction='none';
             if (isDragging && selectedTextBlock === message) {
-
-                const parentRect = mainBox.getBoundingClientRect();
-                const newX = e.touches[0].clientX - parentRect.left - offsetX;
-                const newY = e.touches[0].clientY - parentRect.top - offsetY;
-                //right side
-                if (e.touches[0].clientX + message.clientWidth - 1 >= mainBoxRect.width + parentRect.left) {
-                    console.log('border')
-                    message.style.flexDirection = 'row-reverse';
-                } else {
-                    message.style.flexDirection = 'row';
-                }
-                //check border
-                if (e.touches[0].clientX + message.clientWidth - 1 - 20 >= mainBoxRect.width + parentRect.left) {
-                    selectedTextBlock.style.left = (mainBoxRect.width - message.clientWidth - 1) + 'px';
-                } else if (e.touches[0].clientX - message.clientWidth - 1+20 <= parentRect.left) {
-                    selectedTextBlock.style.left = 1 + 'px';
-                } else {
-                    selectedTextBlock.style.left = newX + 'px';
-                }
-                if (e.touches[0].clientY - message.clientHeight - 1 <= parentRect.top) {
-                    selectedTextBlock.style.top = 1 + 'px';
-                } else if (e.touches[0].clientY + 3 >= parentRect.bottom) {
-                    selectedTextBlock.style.top = (mainBoxRect.height - message.clientHeight) - 1 + 'px';
-                } else {
-                    selectedTextBlock.style.top = newY + 'px';
-                }
-                
-                
-                
+                moveDraggedElement(message, e.touches[0]);
             }
         });
-        
 
         message.addEventListener('touchend', () => {
-            // Завершення перетягування на сенсорних пристроях
-            isDragging = false;
-            selectedTextBlock = null;
-
-            // Включення прокручування сторінки
-            document.body.style.overflow = 'auto';
-            document.documentElement.style.overflow = 'auto';
+            endDragging(message);
+            enableScroll();
         });
-
-
     }
+}
+
+function startDragging(message, event) {
+    isDragging = true;
+    message.style.zIndex = 1;
+    selectedTextBlock = message;
+    message.style.cursor = 'grab';
+    dragData.offsetX = event.clientX - message.getBoundingClientRect().left;
+    dragData.offsetY = event.clientY - message.getBoundingClientRect().top;
+}
+
+function moveDraggedElement(message, event) {
+    const mainBoxRect = mainBox.getBoundingClientRect();
+    const parentRect = mainBox.getBoundingClientRect();
+    const newX = event.clientX - parentRect.left - dragData.offsetX;
+    const newY = event.clientY - parentRect.top - dragData.offsetY;
+    const x = event.clientX;
+    const messageWidth = message.offsetWidth;
+
+    // Check for borders and adjust position
+    const leftBoundary = 1;
+    const topBoundary = 1;
+    const rightBoundary = mainBox.offsetWidth - message.offsetWidth - 1;
+    const bottomBoundary = mainBox.offsetHeight - message.offsetHeight - 1;
+
+    message.style.left = `${Math.min(Math.max(newX, leftBoundary), rightBoundary)}px`;
+    message.style.top = `${Math.min(Math.max(newY, topBoundary), bottomBoundary)}px`;
+
+    if (x + messageWidth >= mainBoxRect.right) {
+        message.style.flexDirection = 'row-reverse';
+    } else if (x - messageWidth <= parentRect.left) {
+        message.style.flexDirection = 'row';
+    }
+}
+
+function endDragging(message) {
+    isDragging = false;
+    message.style.zIndex = 0;
+    message.style.cursor = 'grab';
+    selectedTextBlock = null;
+}
+
+function disableScroll() {
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+}
+
+function enableScroll() {
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
 }
